@@ -234,15 +234,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const inputVal = elInputString.value.trim();
         const initRes = simulator.init(inputVal);
 
-        resetTraceTable();
-        updateSimulationUI();
-
         if (!initRes.success) {
+            resetTraceTable();
+            graph.render();
+            elSimStatusPill.textContent = simulator.status;
             elResultBanner.className = "status-banner status-rejected";
             elResultBanner.textContent = initRes.message;
             elResultBanner.style.display = "block";
             return false;
         }
+
+        resetTraceTable();
+        updateSimulationUI();
 
         if (initRes.finished) {
             handleSimulationFinished();

@@ -29,6 +29,10 @@ class DFASimulator {
         const validation = DFAValidator.validate(this.dfa);
         if (!validation.isValid) {
             this.status = "ERROR";
+            this.history = [];
+            this.currentIndex = 0;
+            this.currentState = null;
+            this.lastActiveEdge = null;
             return {
                 success: false,
                 message: "Cannot simulate: DFA is incomplete or invalid. Please check configuration."
@@ -39,6 +43,10 @@ class DFASimulator {
         const inputCheck = DFAValidator.validateInputString(inputString, this.dfa.alphabet);
         if (!inputCheck.isValid) {
             this.status = "ERROR";
+            this.history = [];
+            this.currentIndex = 0;
+            this.currentState = null;
+            this.lastActiveEdge = null;
             return {
                 success: false,
                 message: `Input contains invalid symbol(s): '${inputCheck.invalidChars.join("', '")}'. Alphabet is { ${this.dfa.alphabet.join(", ")} }.`

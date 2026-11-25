@@ -314,6 +314,72 @@ reportTest({
 });
 
 // -----------------------------------------------------------------------------
+// 8. Stale state clearing on failed init() tests
+// -----------------------------------------------------------------------------
+console.log("\n--- Category 8: Stale State Clearing on Failed init() Tests ---");
+
+// Test: Valid run followed by invalid symbol input -> assert history empty & currentState null
+{
+    const dfaStateTest = new DFA();
+    dfaStateTest.loadEndsWith01Example();
+    const sim = new DFASimulator(dfaStateTest);
+
+    // 1. Run a valid string first
+    sim.init("1101");
+    sim.runAll();
+    const validRanOk = (sim.history.length > 0 && sim.currentState !== null);
+
+    // 2. Now initialize with an invalid symbol string
+    const initRes = sim.init("1021");
+    const stateCleared = (initRes.success === false &&
+                          sim.history.length === 0 &&
+                          sim.currentState === null &&
+                          sim.currentIndex === 0 &&
+                          sim.lastActiveEdge === null);
+
+    reportTest({
+        id: testCounter++,
+        dfaName: "ends-with-01",
+        input: "1021 after ok",
+        expected: "empty & null",
+        actual: (sim.history.length === 0 && sim.currentState === null) ? "empty & null" : "stale state",
+        pass: validRanOk && stateCleared,
+        detail: "History empty and currentState null on invalid symbol"
+    });
+}
+
+// Test: Valid run followed by incomplete DFA -> assert history empty & currentState null
+{
+    const dfaStateTest2 = new DFA();
+    dfaStateTest2.loadEndsWith01Example();
+    const sim2 = new DFASimulator(dfaStateTest2);
+
+    // 1. Run a valid string first
+    sim2.init("01");
+    sim2.runAll();
+    const validRanOk2 = (sim2.history.length > 0 && sim2.currentState !== null);
+
+    // 2. Invalidate the DFA (remove transition) and re-init
+    delete dfaStateTest2.transitions["q0"]["0"];
+    const initRes2 = sim2.init("01");
+    const stateCleared2 = (initRes2.success === false &&
+                           sim2.history.length === 0 &&
+                           sim2.currentState === null &&
+                           sim2.currentIndex === 0 &&
+                           sim2.lastActiveEdge === null);
+
+    reportTest({
+        id: testCounter++,
+        dfaName: "incomplete-dfa",
+        input: "01 after ok",
+        expected: "empty & null",
+        actual: (sim2.history.length === 0 && sim2.currentState === null) ? "empty & null" : "stale state",
+        pass: validRanOk2 && stateCleared2,
+        detail: "History empty and currentState null on incomplete DFA"
+    });
+}
+
+// -----------------------------------------------------------------------------
 // Test Summary & Exit Code
 // -----------------------------------------------------------------------------
 console.log("\n=================================================================================");

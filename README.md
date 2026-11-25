@@ -183,8 +183,12 @@ node test_dfa.js
 [Test 25] DFA: single-state     | Input: "N/A"      | Expected: isValid=true | Actual: isValid=true | PASS ✅ (Single-state complete DFA is valid)
 [Test 26] DFA: single-state     | Input: "1000 chars" | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (Processed 1000 steps cleanly)
 
+--- Category 8: Stale State Clearing on Failed init() Tests ---
+[Test 27] DFA: ends-with-01     | Input: "1021 after ok" | Expected: empty & null | Actual: empty & null | PASS ✅ (History empty and currentState null on invalid symbol)
+[Test 28] DFA: incomplete-dfa   | Input: "01 after ok" | Expected: empty & null | Actual: empty & null | PASS ✅ (History empty and currentState null on incomplete DFA)
+
 =================================================================================
-TOTAL TESTS: 26 | PASSED: 26 | FAILED: 0
+TOTAL TESTS: 28 | PASSED: 28 | FAILED: 0
 =================================================================================
 
 ✅ ALL AUTOMATED TESTS PASSED SUCCESSFULLY!
