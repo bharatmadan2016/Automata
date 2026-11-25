@@ -1,12 +1,16 @@
 /**
  * DFA Validator
- * Checks whether the automaton adheres to the mathematical definition of a complete DFA.
+ * Checks whether the automaton adheres to the mathematical definition of a complete DFA
+ * and validates user input strings against the configured alphabet.
  */
 class DFAValidator {
     /**
-     * Validates the provided DFA instance.
-     * @param {DFA} dfa
-     * @returns {{ isValid: boolean, errors: string[], warnings: string[] }}
+     * Validates whether a DFA satisfies formal completeness and structural integrity constraints.
+     * Checks: non-empty state set Q, non-empty alphabet Sigma, valid initial state q0 in Q,
+     * valid final states F subset of Q, and completeness of transition function delta: Q x Sigma -> Q.
+     * @param {DFA} dfa - The DFA instance to validate.
+     * @returns {{ isValid: boolean, errors: string[], warnings: string[] }} Validation report containing pass status, critical errors, and advisory warnings.
+     * @throws {Error} None. Edge condition: flags missing transitions, empty sets, invalid references, and warns if final state set is empty.
      */
     static validate(dfa) {
         const errors = [];
@@ -61,10 +65,11 @@ class DFAValidator {
     }
 
     /**
-     * Validates if a user input string contains only symbols in the alphabet.
-     * @param {string} inputString
-     * @param {string[]} alphabet
-     * @returns {{ isValid: boolean, invalidChars: string[] }}
+     * Validates if a user-supplied input string contains only symbols defined in the alphabet Sigma.
+     * @param {string} inputString - The raw string to test.
+     * @param {string[]} alphabet - The valid alphabet array of symbols.
+     * @returns {{ isValid: boolean, invalidChars: string[] }} Object indicating validity and listing any encountered unrecognized symbols.
+     * @throws {Error} None. Edge condition: empty string returns isValid=true with empty invalidChars list.
      */
     static validateInputString(inputString, alphabet) {
         const invalidChars = [];

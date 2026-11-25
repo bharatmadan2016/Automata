@@ -1,6 +1,6 @@
 /**
  * Main Application Controller
- * Wires together the UI, DFA model, SVG graph, Transition Table, and Simulator.
+ * Wires together the DOM UI, DFA model, SVG graph, Transition Table, and Simulator.
  */
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Core instances
@@ -62,6 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 4. UI Refresh Functions
+
+    /**
+     * Synchronizes and re-renders all visual interface components with current DFA state.
+     * @param {boolean} [recomputeLayout=false] - Whether to recompute geometric node positions.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: handles empty states gracefully.
+     */
     function refreshAllUI(recomputeLayout = false) {
         if (recomputeLayout) {
             dfa.autoLayout(svgElem.clientWidth || 540, svgElem.clientHeight || 320);
@@ -79,6 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
         validateDFA(false);
     }
 
+    /**
+     * Renders the interactive chip list for states in Q, including delete and role markers.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: renders empty badge when state set is empty.
+     */
     function renderStatesList() {
         elStatesChipsList.innerHTML = "";
         elStateCountBadge.textContent = `${dfa.states.length} state${dfa.states.length === 1 ? '' : 's'}`;
@@ -104,11 +116,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /**
+     * Renders alphabet input field and hint display based on the DFA alphabet.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: handles empty alphabet array.
+     */
     function renderAlphabetUI() {
         elInputAlphabet.value = dfa.alphabet.join(", ");
         elInputAlphabetHint.textContent = `Alphabet: { ${dfa.alphabet.join(", ")} }`;
     }
 
+    /**
+     * Populates the start state selection dropdown with current states in Q.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: defaults to empty prompt if no initial state is set.
+     */
     function renderInitialStateSelect() {
         elSelectInitialState.innerHTML = `<option value="">— select start state —</option>`;
         dfa.states.forEach(s => {
@@ -120,6 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /**
+     * Populates the checkbox list for selecting final/accepting states in F.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: displays a placeholder message when no states exist.
+     */
     function renderFinalStatesList() {
         elFinalStatesCheckboxes.innerHTML = "";
         if (dfa.states.length === 0) {
@@ -150,6 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    /**
+     * Updates source, target, and symbol options for the manual transition creation form.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: leaves selects empty when states or alphabet are missing.
+     */
     function updateTransitionFormDropdowns() {
         // Populate From
         elTransFrom.innerHTML = dfa.states.map(s => `<option value="${s}">${s}</option>`).join("");
@@ -160,6 +192,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 5. Validation Logic
+
+    /**
+     * Validates the active DFA configuration and updates the UI validation banner.
+     * @param {boolean} [showAlert=true] - Whether to explicitly display and scroll to alert box.
+     * @returns {boolean} True if the DFA satisfies all formal completeness constraints; false otherwise.
+     * @throws {Error} None. Edge condition: handles incomplete transition tables and missing components.
+     */
     function validateDFA(showAlert = true) {
         const result = DFAValidator.validate(dfa);
         if (result.isValid) {
@@ -185,6 +224,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 6. Simulation Logic
+
+    /**
+     * Validates and initializes the simulation engine with the current input string.
+     * @returns {boolean} True if simulation initialized successfully; false if DFA or string is invalid.
+     * @throws {Error} None. Edge condition: captures empty string, invalid symbols, or incomplete DFA.
+     */
     function initSimulation() {
         const inputVal = elInputString.value.trim();
         const initRes = simulator.init(inputVal);
@@ -206,6 +251,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
+    /**
+     * Advances the simulation by exactly one symbol transition step and updates the UI.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: auto-initializes if idle; handles terminal state.
+     */
     function stepSimulation() {
         if (simulator.status === "IDLE" || simulator.status === "ERROR") {
             const ok = initSimulation();
@@ -220,6 +270,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Runs all remaining transition steps sequentially until the string is completely evaluated.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: auto-initializes if idle; halts immediately on error.
+     */
     function runAllSimulation() {
         if (simulator.status === "IDLE" || simulator.status === "ERROR") {
             const ok = initSimulation();
@@ -231,6 +286,11 @@ document.addEventListener("DOMContentLoaded", () => {
         handleSimulationFinished();
     }
 
+    /**
+     * Resets the simulation state and UI back to the initial step 0.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: restores graph highlight to default unselected state.
+     */
     function resetSimulation() {
         simulator.reset();
         resetTraceTable();
@@ -239,6 +299,11 @@ document.addEventListener("DOMContentLoaded", () => {
         graph.render();
     }
 
+    /**
+     * Synchronizes execution trace table and SVG graph highlights with current simulation progress.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: handles empty history and final acceptance coloring.
+     */
     function updateSimulationUI() {
         elSimStatusPill.textContent = simulator.status;
 
@@ -270,6 +335,11 @@ document.addEventListener("DOMContentLoaded", () => {
         graph.render(simulator.currentState, simulator.lastActiveEdge, isAccepted);
     }
 
+    /**
+     * Displays the final simulation result banner indicating ACCEPTED or REJECTED status.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: only called when string processing terminates.
+     */
     function handleSimulationFinished() {
         if (simulator.status === "ACCEPTED") {
             elResultBanner.className = "status-banner status-accepted";
@@ -281,6 +351,11 @@ document.addEventListener("DOMContentLoaded", () => {
         elResultBanner.style.display = "block";
     }
 
+    /**
+     * Resets the step execution trace table back to its initial prompt row.
+     * @returns {void}
+     * @throws {Error} None.
+     */
     function resetTraceTable() {
         elTraceTableBody.innerHTML = `
             <tr>
@@ -313,6 +388,14 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Alphabet must contain at least one symbol.");
             return;
         }
+
+        // Validate that every symbol is strictly a single character (Requirement 3)
+        const multiCharSymbols = symbols.filter(s => s.length > 1);
+        if (multiCharSymbols.length > 0) {
+            alert(`Each alphabet symbol must be a single character. Invalid symbol(s): '${multiCharSymbols.join("', '")}'.`);
+            return;
+        }
+
         dfa.setAlphabet(symbols);
         refreshAllUI(false);
     });

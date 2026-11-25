@@ -3,12 +3,25 @@
  * Generates interactive table matrix and keeps in sync with the central DFA model.
  */
 class TransitionTable {
+    /**
+     * Initializes the transition table component attached to a DOM container and DFA instance.
+     * @param {HTMLElement} containerElement - DOM container element where the table is rendered.
+     * @param {DFA} dfa - The DFA instance supplying states, alphabet, and transition mappings.
+     * @param {Function|null} onTransitionChange - Callback invoked whenever a transition is altered via table dropdown.
+     */
     constructor(containerElement, dfa, onTransitionChange) {
         this.container = containerElement;
         this.dfa = dfa;
         this.onTransitionChange = onTransitionChange;
     }
 
+    /**
+     * Renders the transition matrix table with standard textbook markers (-> for start, * for final)
+     * and dropdown selectors for every (state, symbol) transition cell.
+     * Attaches change event listeners to update the DFA model and invoke onTransitionChange callback.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: renders an empty placeholder message if states or alphabet are empty.
+     */
     render() {
         if (!this.dfa.states.length || !this.dfa.alphabet.length) {
             this.container.innerHTML = `

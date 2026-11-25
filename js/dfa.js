@@ -1,8 +1,11 @@
 /**
  * DFA Model - Formal 5-tuple: M = (Q, Sigma, delta, q0, F)
- * Manages the central automata data structure.
+ * Manages the central automata data structure and geometric layout coordinates.
  */
 class DFA {
+    /**
+     * Initializes an empty DFA instance with default collections.
+     */
     constructor() {
         this.states = [];            // Q: Array of state IDs (e.g., ["q0", "q1", "q2"])
         this.alphabet = [];          // Sigma: Array of input symbols (e.g., ["0", "1"])
@@ -13,7 +16,9 @@ class DFA {
     }
 
     /**
-     * Resets to an empty automaton
+     * Resets the automaton to an empty initial state, removing all states, alphabet symbols, and transitions.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: safe to call on an already empty DFA.
      */
     clear() {
         this.states = [];
@@ -25,7 +30,13 @@ class DFA {
     }
 
     /**
-     * Add a new state to Q
+     * Adds a new state to Q and initializes its transition table mapping.
+     * Automatically sets the state as initialState if it is the first state added.
+     * @param {string} name - Identifier for the state (e.g. "q0"). Whitespace is trimmed.
+     * @param {number|null} [x=null] - Optional X-coordinate on the SVG canvas.
+     * @param {number|null} [y=null] - Optional Y-coordinate on the SVG canvas.
+     * @returns {boolean} True if the state was successfully added; false if the name is empty or duplicate.
+     * @throws {Error} None. Edge condition: rejects duplicate state IDs or empty/whitespace-only names.
      */
     addState(name, x = null, y = null) {
         const stateId = name.trim();
@@ -50,7 +61,11 @@ class DFA {
     }
 
     /**
-     * Remove a state from Q and clean up transitions
+     * Removes an existing state from Q, cleans up associated transitions, layout positions, and final state memberships.
+     * If the removed state was the start state q0, reassigns q0 to the next available state or null.
+     * @param {string} stateId - Identifier of the state to remove.
+     * @returns {boolean} True if the state was found and removed; false if the state does not exist in Q.
+     * @throws {Error} None. Edge condition: handles removal of start state, final state, or state with active incoming/outgoing transitions.
      */
     removeState(stateId) {
         if (!this.states.includes(stateId)) return false;
@@ -78,7 +93,11 @@ class DFA {
     }
 
     /**
-     * Set the alphabet Sigma
+     * Sets the input alphabet Sigma, deduplicating symbols and trimming whitespace.
+     * Cleans up any existing transitions defined for symbols that are no longer part of the updated alphabet.
+     * @param {string[]} symbolsArray - Array of raw alphabet symbol strings.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: automatically trims whitespace, discards empty strings, and deduplicates elements.
      */
     setAlphabet(symbolsArray) {
         const cleaned = [...new Set(symbolsArray.map(s => s.trim()).filter(s => s.length > 0))];
@@ -97,7 +116,10 @@ class DFA {
     }
 
     /**
-     * Set initial state q0
+     * Designates an existing state as the initial (start) state q0.
+     * @param {string} stateId - Identifier of the state to set as initial.
+     * @returns {boolean} True if stateId exists in Q and was set; false if stateId is not in Q.
+     * @throws {Error} None. Edge condition: returns false if state is nonexistent in Q.
      */
     setInitialState(stateId) {
         if (this.states.includes(stateId)) {
@@ -108,7 +130,10 @@ class DFA {
     }
 
     /**
-     * Toggle or set final state status in F
+     * Toggles the final (accepting) status of a state in the accepting set F.
+     * @param {string} stateId - Identifier of the state to toggle.
+     * @returns {boolean} True if state exists and its status was toggled; false if state is not in Q.
+     * @throws {Error} None. Edge condition: returns false if stateId does not belong to Q.
      */
     toggleFinalState(stateId) {
         if (!this.states.includes(stateId)) return false;
@@ -120,6 +145,13 @@ class DFA {
         return true;
     }
 
+    /**
+     * Sets or unsets a state's accepting status in F explicitly.
+     * @param {string} stateId - Identifier of the state.
+     * @param {boolean} isFinal - True to include in F; false to exclude from F.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: silently ignores state IDs that do not belong to Q.
+     */
     setFinalState(stateId, isFinal) {
         if (!this.states.includes(stateId)) return;
         if (isFinal) {
@@ -130,7 +162,12 @@ class DFA {
     }
 
     /**
-     * Set transition delta(fromState, symbol) = toState
+     * Defines or deletes a deterministic transition mapping delta(fromState, symbol) = toState.
+     * @param {string} fromState - Origin state in Q.
+     * @param {string} symbol - Alphabet symbol in Sigma.
+     * @param {string|null} toState - Destination state in Q, or null/empty to remove the transition.
+     * @returns {boolean} True if transition was successfully updated or removed; false if parameters are invalid.
+     * @throws {Error} None. Edge condition: returns false if fromState not in Q, toState (when provided) not in Q, or symbol not in Sigma.
      */
     setTransition(fromState, symbol, toState) {
         if (!this.states.includes(fromState)) return false;
@@ -150,14 +187,23 @@ class DFA {
     }
 
     /**
-     * Get transition delta(state, symbol)
+     * Retrieves the target state for a given transition delta(state, symbol).
+     * @param {string} state - Origin state ID.
+     * @param {string} symbol - Input alphabet symbol.
+     * @returns {string|null} Destination state ID, or null if no transition exists.
+     * @throws {Error} None. Edge condition: returns null if state or transition is undefined.
      */
     getTransition(state, symbol) {
         return (this.transitions[state] && this.transitions[state][symbol]) || null;
     }
 
     /**
-     * Auto positions states neatly on the canvas
+     * Computes an automatic balanced geometric layout for all states on the canvas.
+     * Uses horizontal arrangement for small state counts (<= 4) and circular layout for larger counts.
+     * @param {number} [width=540] - Canvas width in pixels.
+     * @param {number} [height=320] - Canvas height in pixels.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: no-op if state count is 0.
      */
     autoLayout(width = 540, height = 320) {
         const n = this.states.length;
@@ -189,6 +235,12 @@ class DFA {
         }
     }
 
+    /**
+     * Calculates an initial default coordinate placement for a newly added state.
+     * @param {string} stateId - Identifier of the state to position.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: clamps within canvas boundaries.
+     */
     autoPositionState(stateId) {
         const n = this.states.length;
         const width = 540;
@@ -202,8 +254,10 @@ class DFA {
     }
 
     /**
-     * Loads the classic standard sample DFA:
-     * Accepts binary strings ending with '01' over Sigma = {0, 1}
+     * Loads the textbook standard preset DFA accepting binary strings ending with "01" over Sigma = {0, 1}.
+     * Q = {q0, q1, q2}, q0 is start, F = {q2}.
+     * @returns {void}
+     * @throws {Error} None.
      */
     loadEndsWith01Example() {
         this.clear();
@@ -230,8 +284,10 @@ class DFA {
     }
 
     /**
-     * Loads an even-zeros sample DFA:
-     * Accepts strings with an even number of '0's over Sigma = {0, 1}
+     * Loads the textbook standard preset DFA accepting binary strings containing an even number of '0's over Sigma = {0, 1}.
+     * Q = {q_even, q_odd}, q_even is start, F = {q_even}.
+     * @returns {void}
+     * @throws {Error} None.
      */
     loadEvenZerosExample() {
         this.clear();

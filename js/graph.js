@@ -3,6 +3,12 @@
  * Draws states, directed edges, self-loops, and highlights simulation states in real-time.
  */
 class DFAGraph {
+    /**
+     * Initializes the SVG graph renderer attached to a DOM SVG element and DFA instance.
+     * @param {SVGElement} svgElement - The root SVG DOM element used for rendering.
+     * @param {DFA} dfa - The DFA instance to visualize.
+     * @param {Function|null} [onStateClick=null] - Optional callback triggered when a node is clicked, receiving stateId.
+     */
     constructor(svgElement, dfa, onStateClick = null) {
         this.svg = svgElement;
         this.dfa = dfa;
@@ -19,6 +25,12 @@ class DFAGraph {
         this.initSVG();
     }
 
+    /**
+     * Initializes SVG definitions (markers for directed arrows and start indicator) and layers.
+     * Attaches mouse event listeners for interactive state repositioning via dragging.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: sets up internal edge and node layer groups.
+     */
     initSVG() {
         this.svg.innerHTML = `
             <defs>
@@ -49,7 +61,12 @@ class DFAGraph {
     }
 
     /**
-     * Re-renders the entire DFA graph
+     * Re-renders the entire DFA graph including all directed edges, self-loops, and state nodes.
+     * @param {string|null} [activeState=null] - State ID currently active in simulation for highlighting.
+     * @param {Object|null} [activeEdge=null] - Transition edge { from, symbol, to } currently active.
+     * @param {boolean|null} [isAccepted=null] - Acceptance verdict: true (green), false (red), or null (blue/neutral).
+     * @returns {void}
+     * @throws {Error} None. Edge condition: safely exits early if edge or node layer elements are missing.
      */
     render(activeState = null, activeEdge = null, isAccepted = null) {
         this.activeState = activeState;
@@ -71,7 +88,9 @@ class DFAGraph {
     }
 
     /**
-     * Groups transitions between pairs of states to combine symbols (e.g. "0, 1")
+     * Aggregates transitions sharing the same source and destination states to combine labels (e.g. "0, 1").
+     * @returns {Array<{ from: string, to: string, symbols: string[] }>} Array of grouped transition edge descriptor objects.
+     * @throws {Error} None. Edge condition: ignores transitions pointing to nonexistent target states.
      */
     getGroupedEdges() {
         // Map key: "fromState->toState" -> array of symbols
@@ -92,6 +111,12 @@ class DFAGraph {
         return Array.from(edgeMap.values());
     }
 
+    /**
+     * Iterates over all grouped edges and renders directed paths and self-loops into the edges layer.
+     * @param {SVGGElement} layer - SVG group element container for edges.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: skips edges where origin or destination position is undefined.
+     */
     renderEdges(layer) {
         const groupedEdges = this.getGroupedEdges();
 
@@ -121,6 +146,15 @@ class DFAGraph {
         });
     }
 
+    /**
+     * Renders a cubic bezier self-loop arrow arched above a state node.
+     * @param {SVGGElement} layer - SVG group element container.
+     * @param {{ x: number, y: number }} pos - Center coordinate of the state node.
+     * @param {string} text - Formatted label string of transition symbol(s).
+     * @param {boolean} isActive - Whether the self-loop is currently active in simulation.
+     * @returns {void}
+     * @throws {Error} None.
+     */
     renderSelfLoop(layer, pos, text, isActive) {
         const r = this.nodeRadius;
         const x = pos.x;
@@ -144,6 +178,18 @@ class DFAGraph {
         layer.appendChild(textElem);
     }
 
+    /**
+     * Renders a straight or curved directed arrow between two distinct state nodes.
+     * Applies quadratic curvature when reciprocal reverse transitions exist to avoid overlapping edges.
+     * @param {SVGGElement} layer - SVG group element container.
+     * @param {{ x: number, y: number }} p1 - Coordinate of origin node.
+     * @param {{ x: number, y: number }} p2 - Coordinate of destination node.
+     * @param {string} text - Formatted label string of transition symbol(s).
+     * @param {boolean} isActive - Whether the transition edge is currently active in simulation.
+     * @param {boolean} isCurved - Whether to render with quadratic curve offset.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: safely returns if points coincide (distance = 0).
+     */
     renderDirectedEdge(layer, p1, p2, text, isActive, isCurved) {
         const dx = p2.x - p1.x;
         const dy = p2.y - p1.y;
@@ -203,6 +249,12 @@ class DFAGraph {
         layer.appendChild(textElem);
     }
 
+    /**
+     * Renders state nodes (circles, double circles for final states, start arrows, labels) into the nodes layer.
+     * @param {SVGGElement} layer - SVG group element container for nodes.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: handles nodes missing layout positions by using fallback coordinates.
+     */
     renderNodes(layer) {
         this.dfa.states.forEach(stateId => {
             const pos = this.dfa.positions[stateId] || { x: 100, y: 100 };
@@ -282,6 +334,13 @@ class DFAGraph {
         });
     }
 
+    /**
+     * Handles mousedown event on a state node to initiate dragging and interactive repositioning.
+     * @param {MouseEvent} e - Mouse event.
+     * @param {string} stateId - Identifier of the state being dragged.
+     * @returns {void}
+     * @throws {Error} None.
+     */
     handleMouseDown(e, stateId) {
         e.stopPropagation();
         this.draggedState = stateId;
@@ -293,6 +352,12 @@ class DFAGraph {
         };
     }
 
+    /**
+     * Handles mousemove event during dragging, recalculating position within canvas bounds and triggering re-render.
+     * @param {MouseEvent} e - Mouse event.
+     * @returns {void}
+     * @throws {Error} None. Edge condition: no-op if no state is currently being dragged. Clamps position within canvas boundaries.
+     */
     handleMouseMove(e) {
         if (!this.draggedState) return;
         const svgRect = this.svg.getBoundingClientRect();
@@ -308,6 +373,11 @@ class DFAGraph {
         this.render(this.activeState, this.activeEdge, this.isAccepted);
     }
 
+    /**
+     * Handles mouseup/mouseleave events to terminate any active node dragging operation.
+     * @returns {void}
+     * @throws {Error} None.
+     */
     handleMouseUp() {
         this.draggedState = null;
     }

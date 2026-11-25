@@ -1,66 +1,211 @@
-# ⚙️ Interactive DFA Simulator (Automata Theory)
+# ⚙️ DFA Simulator (Milestone-II)
 
-A clean, web-based Deterministic Finite Automata (DFA) simulator designed for educational visualization and formal language analysis.
-
-Built with **HTML5, CSS3, ES6 JavaScript, and Native SVG** (Zero external dependencies).
+A clean, zero-dependency educational web application for designing, visualizing, and simulating complete Deterministic Finite Automata (DFA) based on formal automata theory.
 
 ---
 
-## 🌟 Key Features
-- **Central Formal Model:** Built strictly around the mathematical 5-tuple: $M = (Q, \Sigma, \delta, q_0, F)$.
-- **Bidirectional Synchronization:** Edit transitions visually or edit the matrix table directly; both synchronize in real-time with zero discrepancy.
-- **Interactive SVG Graph:** Draggable states, directed arrow markers, double circles for final states, and start arrow indicators.
-- **Strict Completeness Validation:** Checks that every state has an outgoing transition for every symbol in the alphabet $\Sigma$, reporting exact missing transitions if invalid.
-- **Step-by-Step Execution:** Highlight current states, dynamic transition paths, and inspect the real-time execution trace table.
-- **Ready-to-Demo Presets:** Instant one-click loading of standard automata examples (e.g. *Binary strings ending with "01"*).
+## Overview
+
+The **DFA Simulator** bridges theoretical automata concepts with concrete computational visualization. Built around the mathematical 5-tuple $M = (Q, \Sigma, \delta, q_0, F)$, it provides an interactive environment where students and instructors can construct state diagrams, edit transition matrices, and inspect deterministic string processing step-by-step.
 
 ---
 
-## 📁 Project Structure
+## Supported Features
+
+- **Central Formal Model:** Strict adherence to the standard 5-tuple definition $M = (Q, \Sigma, \delta, q_0, F)$.
+- **Dual Input Modalities:** Construct automata either visually on an SVG graph or numerically via an interactive transition matrix.
+- **Two-Way Synchronization:** Real-time synchronization between the transition table and state diagram; modifying a transition dropdown immediately updates the graph edge and vice versa.
+- **Formal DFA Completeness Validation:** Enforces the total function property $\delta : Q \times \Sigma \to Q$. Clearly lists any missing transitions before simulation.
+- **Granular Step-by-Step Simulation:** Step forward one symbol at a time or run the full string automatically, highlighting active nodes, traversed edges, and recording each step in an execution trace table.
+- **Interactive SVG Canvas:** Clean circular nodes, double circles for accepting states, incoming start arrows, curved paths for bidirectional transitions, self-loops, and draggable node repositioning.
+- **Pre-configured Presets:** One-click loading of classic automata examples (e.g., binary strings ending in "01", strings with an even number of '0's).
+
+---
+
+## Technology Stack
+
+- **HTML5:** Semantic document structure and 3-column workbench interface.
+- **CSS3:** Responsive layout, clean typography, color-coded node states, and animations.
+- **JavaScript (ES6+):** Pure client-side automata data structures, validation rules, simulation stepper, and event wiring.
+- **Native SVG:** Scalable vector graphics for rendering states, directed edges, arrowhead markers, and dynamic drag interactions.
+- **Dependencies:** None (zero external libraries, no frameworks, no build tools).
+
+---
+
+## Installation
+
+Clone the repository to your local machine:
+
+```bash
+git clone https://github.com/sushant-1212/DFA-Simulator.git
+cd DFA-Simulator
+```
+
+No package installations (`npm install`), compilers, or bundlers are required.
+
+---
+
+## How to Run
+
+You can run the application directly in any modern web browser:
+
+### Option 1: Open directly in your browser
+Simply open `index.html` in your preferred web browser (Google Chrome, Mozilla Firefox, Microsoft Edge, Safari, Brave):
+```bash
+# On macOS
+open index.html
+
+# On Linux
+xdg-open index.html
+```
+
+### Option 2: Serve using any static HTTP server
+If you prefer running a local HTTP server:
+```bash
+npx serve .
+```
+or with Python:
+```bash
+python3 -m http.server 8000
+```
+Then navigate to `http://localhost:8000` (or the port indicated by your server) in your browser.
+
+---
+
+## Example
+
+### Automaton: Binary strings ending with "01"
+Accepts all strings over $\Sigma = \{0, 1\}$ that have "01" as a suffix.
+
+- **States ($Q$):** $\{q_0, q_1, q_2\}$
+- **Alphabet ($\Sigma$):** $\{0, 1\}$
+- **Start State ($q_0$):** $q_0$
+- **Accepting States ($F$):** $\{q_2\}$
+- **Transition Table ($\delta$):**
+
+| State ($Q$) | Input '0' | Input '1' | Role / Meaning |
+| :---: | :---: | :---: | :--- |
+| $\to q_0$ | $q_1$ | $q_0$ | Start state; reset when trailing symbol is '1' |
+| $q_1$ | $q_1$ | $q_2$ | Trailing '0' detected; candidate for "01" |
+| $* q_2$ | $q_1$ | $q_0$ | Substring "01" matched at current suffix (Accepting) |
+
+### Sample Execution Traces
+
+- **Input:** `1101`
+  - $q_0 \xrightarrow{1} q_0 \xrightarrow{1} q_0 \xrightarrow{0} q_1 \xrightarrow{1} q_2$
+  - Terminal state: $q_2 \in F$
+  - **Verdict:** `ACCEPTED` ✅
+
+- **Input:** `1010`
+  - $q_0 \xrightarrow{1} q_0 \xrightarrow{0} q_1 \xrightarrow{1} q_2 \xrightarrow{0} q_1$
+  - Terminal state: $q_1 \notin F$
+  - **Verdict:** `REJECTED` ❌
+
+---
+
+## Project Structure
+
 ```
 DFA-Simulator/
 │
-├── index.html              # Main single-page workbench layout
+├── index.html              # Main application workbench (Milestone-II)
 ├── css/
-│   └── style.css           # Clean styling, responsive grid, visual states
+│   └── style.css           # Interface styling, node glow states, responsive layout
 ├── js/
-│   ├── dfa.js              # Central 5-tuple DFA data model & layout
-│   ├── validator.js        # Formal completeness & input validator
-│   ├── simulator.js        # Step-by-step & batch execution engine
-│   ├── graph.js            # Interactive SVG renderer with drag & highlights
-│   ├── transitionTable.js  # 2-way synchronized matrix table component
-│   └── main.js             # UI wiring & event controller
-├── test_dfa.js             # Automated test suite (8 test cases verified)
-└── README.md               # Documentation & quick start guide
+│   ├── dfa.js              # Central 5-tuple DFA data model and layout logic
+│   ├── validator.js        # Automata completeness and input string validator
+│   ├── simulator.js        # Deterministic simulation engine and trace logger
+│   ├── graph.js            # Interactive SVG state diagram and visual renderer
+│   ├── transitionTable.js  # Two-way synchronized transition matrix component
+│   └── main.js             # Application controller and UI event listeners
+├── TestCases/
+│   └── test_suite.js       # Comprehensive automated test suite
+├── test_dfa.js             # Root test runner using dynamic path resolution
+├── render.yaml             # Render static site deployment configuration
+└── README.md               # Project documentation and guide
 ```
 
 ---
 
-## 🚀 How to Run the Simulator
-1. Navigate to the project folder:
-   ```
-   C:\Users\Hp\.gemini\antigravity\scratch\DFA-Simulator
-   ```
-2. Simply double-click **`index.html`** to launch it in any modern web browser (Google Chrome, Edge, Firefox, Brave, Safari).
-   - Alternatively, open the folder in VS Code and use the **Live Server** extension.
-3. No Node.js server, Python backend, or npm dependencies are required.
+## Testing
 
----
+The project includes an automated test runner covering preset simulations, edge cases, error diagnostics, and validator integrity. Run the test suite with Node.js:
 
-## 🧪 Automated Testing
-To run the terminal test suite:
 ```bash
 node test_dfa.js
 ```
-Expected output:
+*(or `node TestCases/test_suite.js`)*
+
+### Expected Output
+
 ```
-Validating ends-with-01 DFA: VALID
-Test 1: w="1101" -> Status: ACCEPTED | Expected: ACCEPTED -> PASS ✅
-Test 2: w="1010" -> Status: REJECTED | Expected: REJECTED -> PASS ✅
-Test 3: w="01" -> Status: ACCEPTED | Expected: ACCEPTED -> PASS ✅
-Test 4: w="1111" -> Status: REJECTED | Expected: REJECTED -> PASS ✅
-Test 5: w="0001" -> Status: ACCEPTED | Expected: ACCEPTED -> PASS ✅
-Test 6: w="" -> Status: REJECTED | Expected: REJECTED -> PASS ✅
-Test 7: w="1021" -> Status: ERROR | Expected: ERROR -> PASS ✅
-Test 8: w="101" -> Status: ACCEPTED | Expected: ACCEPTED -> PASS ✅
+=================================================================================
+                       DFA SIMULATOR AUTOMATED TEST SUITE                       
+=================================================================================
+
+--- Category 1: Preset 'ends-with-01' Simulation Tests ---
+[Test 01] DFA: ends-with-01     | Input: "1101"     | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅
+[Test 02] DFA: ends-with-01     | Input: "1010"     | Expected: REJECTED     | Actual: REJECTED     | PASS ✅
+[Test 03] DFA: ends-with-01     | Input: "01"       | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅
+[Test 04] DFA: ends-with-01     | Input: "1111"     | Expected: REJECTED     | Actual: REJECTED     | PASS ✅
+[Test 05] DFA: ends-with-01     | Input: "0001"     | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅
+[Test 06] DFA: ends-with-01     | Input: ""         | Expected: REJECTED     | Actual: REJECTED     | PASS ✅
+[Test 07] DFA: ends-with-01     | Input: "1021"     | Expected: ERROR        | Actual: ERROR        | PASS ✅
+[Test 08] DFA: ends-with-01     | Input: "101"      | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅
+[Test 09] DFA: ends-with-01     | Input: "100"      | Expected: REJECTED     | Actual: REJECTED     | PASS ✅ (Ends in '00', not '01')
+
+--- Category 2: Preset 'even-zeros' Simulation Tests ---
+[Test 10] DFA: even-zeros       | Input: ""         | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (0 zeros (even))
+[Test 11] DFA: even-zeros       | Input: "0"        | Expected: REJECTED     | Actual: REJECTED     | PASS ✅ (1 zero (odd))
+[Test 12] DFA: even-zeros       | Input: "00"       | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (2 zeros (even))
+[Test 13] DFA: even-zeros       | Input: "1010"     | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (2 zeros (even))
+[Test 14] DFA: even-zeros       | Input: "100"      | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (2 zeros (even count))
+[Test 15] DFA: even-zeros       | Input: "10"       | Expected: REJECTED     | Actual: REJECTED     | PASS ✅ (1 zero (odd count))
+
+--- Category 3: Invalid Symbol Error Message Tests ---
+[Test 16] DFA: ends-with-01     | Input: "1021"     | Expected: ERROR ('2')  | Actual: ERROR (lists symbol) | PASS ✅ (Input contains invalid symbol(s): '2'. Alphabet is { 0, 1 }.)
+[Test 17] DFA: ends-with-01     | Input: "a"        | Expected: ERROR ('a')  | Actual: ERROR (lists symbol) | PASS ✅ (Input contains invalid symbol(s): 'a'. Alphabet is { 0, 1 }.)
+
+--- Category 4: Missing Transition Integrity Tests ---
+[Test 18] DFA: incomplete-dfa   | Input: "N/A"      | Expected: isValid=false | Actual: isValid=false | PASS ✅ (DFAValidator flags missing transition)
+[Test 19] DFA: incomplete-dfa   | Input: "01"       | Expected: success=false | Actual: success=false | PASS ✅ (Simulator rejects incomplete DFA)
+
+--- Category 5: Structural DFA Validation Error Tests ---
+[Test 20] DFA: no-initial-state | Input: "N/A"      | Expected: Error: q0    | Actual: Error: q0    | PASS ✅ (Initial state missing error)
+[Test 21] DFA: empty-alphabet   | Input: "N/A"      | Expected: Error: Sigma | Actual: Error: Sigma | PASS ✅ (Alphabet empty error)
+[Test 22] DFA: empty-states     | Input: "N/A"      | Expected: Error: Q     | Actual: Error: Q     | PASS ✅ (States set empty error)
+
+--- Category 6: No Final States Warning & Rejection Tests ---
+[Test 23] DFA: no-final-states  | Input: "N/A"      | Expected: Warning: F   | Actual: Warning: F   | PASS ✅ (DFAValidator issues final state warning)
+[Test 24] DFA: no-final-states  | Input: "multiple" | Expected: REJECTED     | Actual: REJECTED     | PASS ✅ (All inputs rejected when F is empty)
+
+--- Category 7: Single-State DFA & Long String (1000 chars) Tests ---
+[Test 25] DFA: single-state     | Input: "N/A"      | Expected: isValid=true | Actual: isValid=true | PASS ✅ (Single-state complete DFA is valid)
+[Test 26] DFA: single-state     | Input: "1000 chars" | Expected: ACCEPTED     | Actual: ACCEPTED     | PASS ✅ (Processed 1000 steps cleanly)
+
+=================================================================================
+TOTAL TESTS: 26 | PASSED: 26 | FAILED: 0
+=================================================================================
+
+✅ ALL AUTOMATED TESTS PASSED SUCCESSFULLY!
 ```
+
+---
+
+## Known Limitations
+
+1. **Incomplete DFA is rejected (No automatic trap state):** In formal automata theory, a DFA transition function must be total ($\delta : Q \times \Sigma \to Q$). If any state lacks a transition for an alphabet symbol, the simulator alerts the user with an explicit completeness error. It does not silently create an implicit dead/trap state.
+2. **$\varepsilon$ (epsilon) input:** The empty string ($\varepsilon$) is represented by passing an empty input `""`. It is evaluated immediately against the start state $q_0$ without traversing transitions.
+3. **Single-character symbols only:** Input string validation operates on a per-character basis. All alphabet symbols must be individual characters (e.g., `0`, `1` or `a`, `b`). Entering symbols longer than 1 character is rejected.
+4. **Whitespace is trimmed:** Leading, trailing, and comma-delimited whitespace is automatically trimmed from state identifiers and alphabet inputs.
+
+---
+
+## Team Contributions
+
+| Team Member | Role | Key Contributions |
+| :--- | :--- | :--- |
+| **Team Member 1** | Frontend & UI Architecture | Built responsive 3-column workbench, CSS layout, and simulation controls. |
+| **Team Member 2** | Automata Engine & Logic | Implemented central DFA data model, completeness validation, and stepping engine. |
+| **Team Member 3** | SVG Visualization & Testing | Developed SVG graph rendering, node dragging, and automated test suite. |
+| **Team Member 4** | Documentation & Deployment | Authored technical documentation, JSDoc specifications, and deployment config. |

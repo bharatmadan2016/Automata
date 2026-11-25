@@ -1,8 +1,12 @@
 /**
  * DFA Simulation Engine
- * Executes strings on a DFA step-by-step or in batch, maintaining execution history.
+ * Executes input strings on a configured DFA step-by-step or in batch, maintaining execution history and state.
  */
 class DFASimulator {
+    /**
+     * Initializes the simulator attached to a specific DFA instance.
+     * @param {DFA} dfa - The DFA instance to execute simulations upon.
+     */
     constructor(dfa) {
         this.dfa = dfa;
         this.inputString = "";
@@ -14,7 +18,11 @@ class DFASimulator {
     }
 
     /**
-     * Initializes simulation with an input string
+     * Initializes a new simulation run with a given input string.
+     * Validates that the underlying DFA is complete and that all characters belong to the alphabet.
+     * @param {string} inputString - The input string to simulate.
+     * @returns {{ success: boolean, message?: string, status?: string, finished?: boolean }} Result object with status, initialization success, and completion flag.
+     * @throws {Error} None. Edge condition: handles empty string epsilon by immediately evaluating acceptance against start state. Returns failure if DFA is incomplete or input has invalid symbols.
      */
     init(inputString) {
         // Validate DFA first
@@ -71,7 +79,10 @@ class DFASimulator {
     }
 
     /**
-     * Executes the next transition step
+     * Advances the simulation by exactly one symbol transition step.
+     * Computes next state via delta(currentState, symbol), logs the step in history, and evaluates acceptance upon terminal character.
+     * @returns {{ finished: boolean, status?: string, currentIndex?: number, symbol?: string, fromState?: string, toState?: string, isAccepted?: boolean|null, activeEdge?: Object, error?: string, currentState?: string }} Step execution result summary.
+     * @throws {Error} None. Edge condition: returns error if simulator is uninitialized or in an error state; safely returns finished if input string already consumed.
      */
     step() {
         if (this.status === "IDLE" || this.status === "ERROR") {
@@ -141,7 +152,9 @@ class DFASimulator {
     }
 
     /**
-     * Runs all remaining steps automatically
+     * Runs all remaining transition steps sequentially until the string is completely consumed or an error occurs.
+     * @returns {Object|null} The final step result object, or null if the string was empty or already completed.
+     * @throws {Error} None. Edge condition: loops terminate immediately if status becomes ERROR.
      */
     runAll() {
         let result = null;
@@ -152,7 +165,10 @@ class DFASimulator {
     }
 
     /**
-     * Resets simulation to beginning
+     * Resets the simulation state and history back to step 0.
+     * If an input string was previously set, re-initializes with that string; otherwise sets status to IDLE.
+     * @returns {Object|void} If inputString exists, returns init() result; otherwise clears internal state.
+     * @throws {Error} None. Edge condition: safely handles uninitialized simulator reset.
      */
     reset() {
         if (this.inputString !== undefined) {
