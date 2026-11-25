@@ -207,9 +207,8 @@ TOTAL TESTS: 28 | PASSED: 28 | FAILED: 0
 
 ## Team Contributions
 
-| Team Member | Role | Key Contributions |
-| :--- | :--- | :--- |
-| **Team Member 1** | Frontend & UI Architecture | Built responsive 3-column workbench, CSS layout, and simulation controls. |
-| **Team Member 2** | Automata Engine & Logic | Implemented central DFA data model, completeness validation, and stepping engine. |
-| **Team Member 3** | SVG Visualization & Testing | Developed SVG graph rendering, node dragging, and automated test suite. |
-| **Team Member 4** | Documentation & Deployment | Authored technical documentation, JSDoc specifications, and deployment config. |
+| Member (ID) | Main Responsibilities |
+| :--- | :--- |
+| **Sushant Feria** (S24CSEU2389) | Project lead. Overall design and the automata logic (DFA model, validator, simulator); integration of the interface; automated tests; deployment on Render; preparation of this report and the README. |
+| **Bharat Madan** (S24CSEU2405) | Full-stack and code side: interface components and controller wiring (page structure, diagram and transition-table views, event handling); code review and fixes. |
+| **Abhay Modanwal** (S24CSEU2399) | Supporting work: interface testing and screenshots, example automata and test strings, review of documentation. |
