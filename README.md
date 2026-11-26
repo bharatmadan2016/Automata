@@ -2,6 +2,18 @@
 
 A clean, zero-dependency educational web application for designing, visualizing, and simulating complete Deterministic Finite Automata (DFA) based on formal automata theory.
 
+## Groq generation setup
+
+The Groq request runs through the Node backend, so the API key is never sent from the browser or committed to source control. Node.js 18 or newer is required.
+
+```bash
+cp .env.example .env
+# Edit .env and set GROQ_API_KEY
+npm start
+```
+
+Open `http://localhost:3000` and use **Generate DFA**. Do not open `index.html` directly or use a static-only server when using AI generation; those do not provide the `/api/generate-dfa` backend route. On Render, create a `GROQ_API_KEY` environment variable; `render.yaml` is configured to run the backend automatically.
+
 ---
 
 ## Overview

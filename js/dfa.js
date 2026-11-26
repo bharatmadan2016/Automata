@@ -197,6 +197,18 @@ class DFA {
         return (this.transitions[state] && this.transitions[state][symbol]) || null;
     }
 
+    /** Loads a validated plain-object DFA definition into this model. */
+    loadDefinition(definition) {
+        this.clear();
+        this.setAlphabet(definition.alphabet);
+        definition.states.forEach(state => this.addState(state));
+        this.setInitialState(definition.initialState);
+        definition.finalStates.forEach(state => this.setFinalState(state, true));
+        Object.entries(definition.transitions).forEach(([from, symbols]) => {
+            Object.entries(symbols).forEach(([symbol, to]) => this.setTransition(from, symbol, to));
+        });
+    }
+
     /**
      * Computes an automatic balanced geometric layout for all states on the canvas.
      * Uses horizontal arrangement for small state counts (<= 4) and circular layout for larger counts.
